@@ -24,7 +24,13 @@ class Link < ActiveRecord::Base
       (0..5).map{ alphabet[rand(alphabet.size)] }.join
     end
 
-    str = random_str[] until str && Link.for_key(str).empty? && !contains_bad_word(str)
+    str = random_str[]
+
+    until (Link.for_key(str).empty? &&
+        !contains_bad_word(str) &&
+        !any_single_mismatches(str) )
+      str = random_str[]
+    end
 
     str
   end
@@ -55,5 +61,29 @@ class Link < ActiveRecord::Base
     if Link.contains_bad_word(key)
       errors.add(:key, "contains a bad word")
     end
+  end
+
+  # This is godawful. Never do this: it'll make inserts
+  # very slow as the table grows. The correct way to do
+  # this is the SQLite spelling extension, the editdist3
+  # function. Or store a big prefix table in memory or
+  # something. But, since this is for a job interview, I
+  # want you guys to be able to run it, and I can't
+  # assume you'll have that extension set up. So for now
+  # I'm choosing ease of deployment over speed.
+  def self.any_single_mismatches key
+    Link.all.each do |other|
+      diff = 0
+      (0 .. [key.length, other.key.length].max).each do |n|
+        diff += 1 if key[n] != other.key[n]
+        break if diff > 1
+      end
+
+      if diff <= 1
+        return true
+      end
+    end
+
+    return false
   end
 end

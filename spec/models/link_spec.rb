@@ -28,4 +28,11 @@ RSpec.describe Link, type: :model do
     l = Link.new(url: "i'm-not-a-url")
     expect( l ).to be_invalid
   end
+
+  it "should disallow single-char-mismatch keys" do
+    l1 = Link.create(url: "a", key: 'AAA')
+    l2 = Link.new(url: "b", key: 'ABA')
+    expect( l2 ).to be_invalid
+
+  end
 end
