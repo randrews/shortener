@@ -24,4 +24,8 @@ RSpec.describe Link, type: :model do
     expect( l ).to be_invalid
   end
 
+  it "should validate URLs" do
+    l = Link.new(url: "i'm-not-a-url")
+    expect( l ).to be_invalid
+  end
 end

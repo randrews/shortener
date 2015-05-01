@@ -1,8 +1,10 @@
+require 'uri'
+
 class Link < ActiveRecord::Base
   BAD_WORDS = %w{ foo bar }
 
   validates :key, uniqueness: true, presence: true
-  validates :url, uniqueness: true, presence: true
+  validates :url, uniqueness: true, presence: true, format: URI.regexp(%w{http https ftp})
   validate :no_bad_words
 
   scope :for_key, lambda{|key| where(key: normalize_key(key)) }
