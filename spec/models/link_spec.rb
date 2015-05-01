@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Link, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
 
   it "should generate keys on create" do
     l = Link.create(url: "http://google.com")
@@ -20,6 +19,9 @@ RSpec.describe Link, type: :model do
     expect( Link.for_key('IOlo').first ).to be_present
   end
 
-  it "should reject keys with bad words"
+  it "should reject keys with bad words" do
+    l = Link.new(url: "http://google.com", key: 'F00')
+    expect( l ).to be_invalid
+  end
 
 end

@@ -1,6 +1,9 @@
 class Link < ActiveRecord::Base
+  BAD_WORDS = %w{ foo bar }
+
   validates :key, uniqueness: true, presence: true
   validates :url, uniqueness: true, presence: true
+  validate :no_bad_words
 
   scope :for_key, lambda{|key| where(key: normalize_key(key)) }
 
@@ -18,7 +21,7 @@ class Link < ActiveRecord::Base
       (0..5).map{ alphabet[rand(alphabet.size)] }.join
     end
 
-    str = random_str[] until str && Link.for_key(str).empty?
+    str = random_str[] until str && Link.for_key(str).empty? && !contains_bad_word(str)
 
     str
   end
@@ -32,7 +35,22 @@ class Link < ActiveRecord::Base
       gsub('O', '0').
       gsub('I', '1').
       gsub('L', '1').
-      gsub('U', '')
+      gsub('U', 'V')
   end
 
+  def self.contains_bad_word key
+    normal = normalize_key(key)
+    BAD_WORDS.each do |word|
+      if normal.include?(normalize_key(word))
+        return true
+      end
+    end
+    return false
+  end
+
+  def no_bad_words
+    if Link.contains_bad_word(key)
+      errors.add(:key, "contains a bad word")
+    end
+  end
 end
