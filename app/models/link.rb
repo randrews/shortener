@@ -8,6 +8,7 @@ class Link < ActiveRecord::Base
   validate :no_bad_words
 
   scope :for_key, lambda{|key| where(key: normalize_key(key)) }
+  scope :for_url, lambda{|url| where(url: url) }
 
   before_validation :set_key
 
